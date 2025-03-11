@@ -12,6 +12,7 @@ import { generateCourse } from "@/models/generateCourse";
 import EditChapters from "./EditChapters";
 import MdEditor from "./Md";
 import AddChapter from "./AddChapter";
+import { categoriesList, courseLang, courseLevel } from "@/constants/constants";
 
 const CreateCourse = () => {
   const user = useSelector((state) => state.user);
@@ -70,36 +71,7 @@ const CreateCourse = () => {
     }
   };
 
-  const categoriesList = [
-    "Development",
-    "Business",
-    "IT & Software",
-    "Design",
-    "Marketing",
-    "Personal Development",
-    "Photography & Video",
-    "Health & Fitness",
-    "Music",
-    "Teaching & Academics",
-    "Lifestyle",
-    "Finance & Accounting",
-    "Office Productivity",
-    "Language Learning",
-    "Data Science",
-    "Cloud Computing",
-    "Cybersecurity",
-    "Graphic Design",
-    "Web Development",
-    "Mobile Development",
-    "Game Development",
-    "Digital Marketing",
-    "Entrepreneurship",
-    "Leadership",
-    "Project Management",
-  ];
-
-  const courseLang = ["English", "Spanish", "French", "German", "Hindi", "Other"];
-  const courseLevel = ["Beginner", "Intermediate", "Advanced"];
+ 
 
   const handleGenerateWithAi = async () => {
     setIsLoading(true);
