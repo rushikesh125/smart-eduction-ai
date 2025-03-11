@@ -95,7 +95,7 @@ const Header = () => {
           <NavbarItem>
             <Link
               aria-current="page"
-              href="/my-courses"
+              href="/my-forks"
               className="flex items-center justify-center gap-2 hover:text-purple-500"
             >
               <GitBranchPlus />

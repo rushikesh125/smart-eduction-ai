@@ -2,8 +2,9 @@
 
 import { useEnrolledCourse } from "@/firebase/enrollcourse/read";
 import { enrollToCourse } from "@/firebase/enrollcourse/write";
+import { createFork } from "@/firebase/fork/write";
 import { Button } from "@heroui/react";
-import { Edit, Play, BookOpen } from "lucide-react";
+import { Edit, Play, BookOpen, GitBranch } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
@@ -34,6 +35,18 @@ const CourseButton = ({ courseId, instructureUid }) => {
     }
   };
 
+  const handleFrok = async()=>{
+    try {
+      const result = await createFork({courseId:courseId,uid:user?.uid})
+      toast.success("Created Frok Successfully :",result)
+      // console.log(result)
+    } catch (error) {
+      console.log(error)
+      toast.error(error?.message || "Error Creating Frok")
+    }finally{
+
+    }
+  }
   // Style constants
   const baseButtonClasses = "flex items-center justify-center gap-2 font-medium transition-all duration-300 shadow-md hover:shadow-lg rounded-lg";
   const primaryButtonClasses = `${baseButtonClasses} bg-purple-400 hover:bg-purple-500 text-white px-6 py-3`;
@@ -60,12 +73,20 @@ const CourseButton = ({ courseId, instructureUid }) => {
 
   if (data) {
     return (
+      <div className="md:flex gap-2">
       <Link href={`/enrolled-courses/${courseId}`} className="w-full sm:w-auto">
         <Button className={`${primaryButtonClasses} w-full`}>
           <BookOpen size={20} className="mr-2" />
-          Continue Learning
+          Learn
         </Button>
       </Link>
+      {/* <Link href={`/enrolled-courses/${courseId}`} className="w-full sm:w-auto"> */}
+        <Button className={`${secondaryButtonClasses} w-full sm:w-auto`} onPress={handleFrok} isDisabled={isLoading} isLoading={isLoading}>
+          <GitBranch size={20} className="mr-2" />
+          Fork
+        </Button>
+      {/* </Link> */}
+      </div>
     );
   }
 

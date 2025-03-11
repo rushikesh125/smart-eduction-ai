@@ -1,24 +1,29 @@
 "use client";
 
-import { Accordion, AccordionItem, Button } from "@heroui/react";
-import React, { useState } from "react";
+import { Button } from "@heroui/react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { createCourse } from "@/firebase/courses/write";
 import { useSelector } from "react-redux";
-import CustomBtn from "./CustomBtn";
-import { useRouter } from "next/navigation";
-import { Brain, BrainCircuit, Trash } from "lucide-react";
-import { generateCourse } from "@/models/generateCourse";
-import EditChapters from "./EditChapters";
-import MdEditor from "./Md";
+import { useRouter, useSearchParams } from "next/navigation";
+import { updateCourse } from "@/firebase/courses/write";
+import { getCourse } from "@/firebase/courses/read.server";
 import AddChapter from "./AddChapter";
+import EditChapters from "./EditChapters";
+import { BrainCircuit } from "lucide-react";
+import { generateCourse } from "@/models/generateCourse";
 import { categoriesList, courseLang, courseLevel } from "@/constants/constants";
+import { getForkedCourse, useForkedCourse } from "@/firebase/fork/read";
+import { updateForkedCourse } from "@/firebase/fork/update";
 
-const CreateCourse = () => {
+const UpdateFork = () => {
   const user = useSelector((state) => state.user);
   const [courseChapters, setCourseChapters] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const forkedCourseId = searchParams.get("forkedCourseId");
+
   const [data, setData] = useState({
     courseTitle: "",
     shortDescription: "",
@@ -32,7 +37,43 @@ const CreateCourse = () => {
     forkedFrom: null,
     mergeRequests: [],
   });
-  const router = useRouter();
+
+  
+
+  const fetchCourse = async () => {
+    if (!forkedCourseId ) return;
+
+    setIsLoading(true);
+    try {
+      const course = await getForkedCourse({ uid:user?.uid,forkedCourseId:forkedCourseId });
+      if (course) {
+        setData({
+          courseTitle: course?.courseTitle || "",
+          shortDescription: course?.shortDescription || "",
+          category: course?.category || "",
+          level: course?.level || "",
+          language: course?.language || "",
+          coursePrice: course?.coursePrice || "",
+          description: course?.description || "",
+          posterURL: course?.posterURL || "",
+          courseId: course?.courseId,
+          isForked: course?.isForked || false,
+          forkedFrom: course?.forkedFrom || null,
+          mergeRequests: course?.mergeRequests || [],
+          forkedBy:course?.forkedBy || "",
+          forkedCourseId :course?.forkedCourseId || "",
+        });
+        setCourseChapters(course?.courseChapters || []);
+      } else {
+        throw new Error("Course does not exist");
+      }
+    } catch (error) {
+      toast.error(`Error fetching course: ${error?.message}`);
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -50,24 +91,22 @@ const CreateCourse = () => {
       !data?.description ||
       !data?.posterURL
     ) {
-      toast.error("Please Fill Form Completely, there are missing Fields");
+      toast.error("Please fill all required fields");
       return;
     }
 
     setIsLoading(true);
     try {
-      const courseId = await createCourse({
+      await updateForkedCourse({
+        uid:user?.uid,
         data: data,
+        forkedCourseId: forkedCourseId,
         courseChapters: courseChapters,
-        instructureUid: user?.uid,
-        instructureName: user?.displayName,
-        instructurePhotoURL: user?.photoURL,
-        instructureEmail: user?.email,
       });
-      toast.success(`Course Created Successfully (ID: ${courseId})`);
-      router.push("/my-courses");
+      toast.success(`Forked Course updated successfully (ID: ${forkedCourseId})`);
+      router.push("/my-forks");
     } catch (error) {
-      toast.error(error?.message || "Failed to create course");
+      toast.error(error?.message || "Failed to update course");
       console.error("Submission error:", error);
     } finally {
       setIsLoading(false);
@@ -112,13 +151,22 @@ const CreateCourse = () => {
     }
   };
 
+  useEffect(() => {
+    if (forkedCourseId) {
+      fetchCourse();
+    } else {
+      toast.error("No course ID provided");
+      router.push("/my-courses");
+    }
+  }, [forkedCourseId]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-gray-100 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl p-6 md:p-8 transform transition-all hover:shadow-3xl">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl md:text-4xl font-extrabold text-purple-500 bg-clip-text">
-            Craft Your Course
+            Update Your Course
           </h1>
           <Button
             color="secondary"
@@ -128,7 +176,7 @@ const CreateCourse = () => {
             disabled={isLoading}
             className="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-6 rounded-full shadow-md transition-all duration-300 transform hover:scale-105"
           >
-            Create
+            Update
           </Button>
         </div>
 
@@ -340,4 +388,4 @@ const CreateCourse = () => {
   );
 };
 
-export default CreateCourse;
+export default UpdateFork;

@@ -5,7 +5,7 @@ import CourseCard from "./ui/CourseCard";
 const CoursesGridView = async () => {
   const courses = await getAllCourses();
 
-  const formattedCourses = courses.map((course) => ({
+  const formattedCourses = courses?.map((course) => ({
     ...course,
     createdAt: course.createdAt?.seconds
       ? new Date(course.createdAt.seconds * 1000).toISOString()
@@ -18,9 +18,9 @@ const CoursesGridView = async () => {
         <h1 className="text-center text-2xl font-semibold text-purple-500">
           Explore All Courses
         </h1>
-        <div className="p-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 lg:gap-6">
-          {formattedCourses.length > 0 ? (
-            formattedCourses.map((course) => (
+        <div className="p-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3 lg:gap-4">
+          {formattedCourses?.length > 0 ? (
+            formattedCourses?.map((course) => (
               <CourseCard {...course} key={course.courseId} />
             ))
           ) : (

@@ -7,7 +7,7 @@ export default async function Home() {
   return (
     <>
       <Header />
-      <section className="w-full bg-fixed bg-[url('https://i.ibb.co/qMkbqSjv/Screenshot-2025-03-07-195441.png')] h-[400px] bg-no-repeat bg-bottom bg-cover">
+      <section className="w-full bg-fixed bg-[url('https://i.ibb.co/DPBgHTG5/Screenshot-2025-03-12-000505.png')] h-[400px] bg-no-repeat bg-cover bg-top">
         <div className="flex flex-col justify-center items-center w-full h-[100%] bg-black bg-opacity-35">
         <h1 className="text-white text-xl backdrop-blur-md px-4 py-1 rounded-full font-semibold">
           All the Skills you need in one place

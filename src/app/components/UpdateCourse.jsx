@@ -30,6 +30,9 @@ const UpdateCourse = () => {
     coursePrice: "",
     description: "",
     posterURL: "",
+    isForked: false,
+    forkedFrom: null,
+    mergeRequests: [],
   });
 
   const categoriesList = [
@@ -60,7 +63,14 @@ const UpdateCourse = () => {
     "Project Management",
   ];
 
-  const courseLang = ["English", "Spanish", "French", "German", "Hindi", "Other"];
+  const courseLang = [
+    "English",
+    "Spanish",
+    "French",
+    "German",
+    "Hindi",
+    "Other",
+  ];
   const courseLevel = ["Beginner", "Intermediate", "Advanced"];
 
   const fetchCourse = async () => {
@@ -71,17 +81,20 @@ const UpdateCourse = () => {
       const course = await getCourse({ id: courseId });
       if (course) {
         setData({
-          courseTitle: course.courseTitle || "",
-          shortDescription: course.shortDescription || "",
-          category: course.category || "",
-          level: course.level || "",
-          language: course.language || "",
-          coursePrice: course.coursePrice || "",
-          description: course.description || "",
-          posterURL: course.posterURL || "",
+          courseTitle: course?.courseTitle || "",
+          shortDescription: course?.shortDescription || "",
+          category: course?.category || "",
+          level: course?.level || "",
+          language: course?.language || "",
+          coursePrice: course?.coursePrice || "",
+          description: course?.description || "",
+          posterURL: course?.posterURL || "",
           courseId: courseId,
+          isForked: course?.isForked || false,
+          forkedFrom: course?.forkedFrom || null,
+          mergeRequests: course?.mergeRequests || [],
         });
-        setCourseChapters(course.courseChapters || []);
+        setCourseChapters(course?.courseChapters || []);
       } else {
         throw new Error("Course does not exist");
       }

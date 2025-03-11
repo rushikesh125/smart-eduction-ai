@@ -4,16 +4,17 @@ import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
 
 const courseContentSchema = {
-    type: "object",
-    properties: {
-      chapterContent: {
-        description: "Explained chapter completely and strongly, providing code in Markdown format.",
-        type: SchemaType.STRING,
-      },
+  type: "object",
+  properties: {
+    chapterContent: {
+      description:
+        "Explained chapter completely and strongly, providing code in Markdown format.",
+      type: SchemaType.STRING,
     },
-    required: ["chapterContent"],
-  };
-  
+  },
+  required: ["chapterContent"],
+};
+
 // Configure the model
 const model = genAI.getGenerativeModel({
   model: "gemini-1.5-pro",
@@ -24,14 +25,49 @@ const model = genAI.getGenerativeModel({
 });
 
 // Example usage
-const generateChapterContent = async (courseData, chapterName,chapterDescription, prompt) => {
+const generateChapterContent = async (
+  courseData,
+  courseChapters,
+  chapterName,
+  chapterDescription,
+  prompt
+) => {
   const cData = JSON.stringify(courseData);
+  const cChapters = JSON.stringify(courseChapters);
   //   console.log(resData);
+  const augmentation = `Generate detailed content for the current chapter of a course based on the given context.
+Course Details:
+Course DATA: ${cData}
+Course Chapters: ${cChapters}
+Current Chapter Information:
+Chapter Name: ${chapterName}
+Chapter Description: ${chapterDescription}
+Instructions:
+Depth & Detail:
 
+Provide an in-depth explanation of the chapter, covering all essential concepts.
+Ensure clarity and completeness, making the content suitable for both beginners and advanced learners.
+Markdown Formatting:
+
+Use proper headings (#, ##, ###) to structure the content.
+Include bullet points, numbered lists, and code blocks (if applicable) for better readability.
+References & Additional Resources:
+
+Include relevant links, references, and citations for further reading.
+Provide examples, case studies, or real-world applications to enhance understanding.
+Strong & Structured Explanation:
+
+Break down complex topics into smaller, well-explained sections.
+Where applicable, include diagrams, tables, and code snippets in markdown format.
+Context Awareness:
+
+Ensure the content aligns with the course’s overall theme and learning objectives.
+The chapter should build upon previous chapters and provide a foundation for upcoming topics.
+Additional Context:
+${prompt}`;
+  console.log(augmentation);
   try {
-    const result = await model.generateContent(
-      `course := ${cData} understand given course , and generate Chapter contents which explained chapter:=${chapterName},${chapterDescription} with all necessary and strongly give in markdown format, include references , links for detail explanation of given Chapter, a strongly keep explaination as large & detailed as possible   ${prompt}`
-    );
+    const result = await model.generateContent(augmentation);
     return result.response.text();
   } catch (error) {
     console.error("Error Generating resume review:", error);

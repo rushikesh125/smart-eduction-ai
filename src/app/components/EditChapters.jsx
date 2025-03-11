@@ -7,7 +7,13 @@ import MdEditor from "./Md";
 import toast from "react-hot-toast";
 import { generateChapterContent } from "@/models/generateChapterContent";
 
-const EditChapters = ({ courseData, chapter, courseChapters, ind, setCourseChapters }) => {
+const EditChapters = ({
+  courseData,
+  chapter,
+  courseChapters,
+  ind,
+  setCourseChapters,
+}) => {
   const [chapterAiPrompt, setChapterAiPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -25,9 +31,17 @@ const EditChapters = ({ courseData, chapter, courseChapters, ind, setCourseChapt
 
   const handleGenerateContentWithAi = async () => {
     setIsLoading(true);
+    console.log(
+      courseData,
+      courseChapters,
+      chapter.title,
+      chapter.description,
+      chapterAiPrompt
+    );
     try {
       const response = await generateChapterContent(
         courseData,
+        courseChapters,
         chapter.title,
         chapter.description,
         chapterAiPrompt
@@ -47,7 +61,9 @@ const EditChapters = ({ courseData, chapter, courseChapters, ind, setCourseChapt
   };
 
   const handleDeleteChapter = () => {
-    setCourseChapters((prevData) => prevData.filter((item) => item !== chapter));
+    setCourseChapters((prevData) =>
+      prevData.filter((item) => item !== chapter)
+    );
   };
 
   return (
@@ -76,18 +92,20 @@ const EditChapters = ({ courseData, chapter, courseChapters, ind, setCourseChapt
               {chapter?.description || "No description provided"}
             </span>
           }
-          className="my-2"  // Copied from second component
+          className="my-2" // Copied from second component
         >
           <div>
             <div>
-              <label htmlFor="chapterAiPrompt">🔮 Generate Chapter Contents with Ai</label>
+              <label htmlFor="chapterAiPrompt">
+                🔮 Generate Chapter Contents with Ai
+              </label>
               <textarea
                 id="chapterAiPrompt"
-                rows="2"  // Changed from 3 to match second component
+                rows="2" // Changed from 3 to match second component
                 value={chapterAiPrompt}
                 onChange={(e) => setChapterAiPrompt(e.target.value)}
-                className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-purple-300 outline-none"  // Copied from second component
-                placeholder="Write short description of chapter you want to generate"  // Updated placeholder text
+                className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-purple-300 outline-none" // Copied from second component
+                placeholder="Write short description of chapter you want to generate" // Updated placeholder text
               />
               <Button
                 startContent={<BrainCircuit />}
@@ -96,14 +114,16 @@ const EditChapters = ({ courseData, chapter, courseChapters, ind, setCourseChapt
                 isDisabled={isLoading}
                 variant="ghost"
                 onPress={handleGenerateContentWithAi}
-                className="my-1"  // Copied from second component
+                className="my-1" // Copied from second component
               >
                 Generate With Ai ✨
               </Button>
             </div>
             <MdEditor
               chapterContent={chapter?.chapterContent || ""}
-              setChapterContent={(content) => updateChapterContent(ind, content)}
+              setChapterContent={(content) =>
+                updateChapterContent(ind, content)
+              }
             />
           </div>
         </AccordionItem>
