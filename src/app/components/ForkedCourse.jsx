@@ -1,8 +1,10 @@
 import { deleteFork } from "@/firebase/fork/delete";
+import { publishForkedCourse } from "@/firebase/fork/publish";
 import { Button } from "@heroui/react";
 import {
   Award,
   BookOpen,
+  BookOpenCheck,
   Calendar,
   Copy,
   DollarSign,
@@ -22,7 +24,7 @@ import { useSelector } from "react-redux";
 
 const FrokedCourse = ({ courseData }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const user = useSelector(state=>state.user)
+  const user = useSelector((state) => state.user);
   // Extract course data from the object
   const {
     category,
@@ -59,24 +61,45 @@ const FrokedCourse = ({ courseData }) => {
       day: "numeric",
     });
   };
-const handleDeleteFork = async ()=>{
-    if(confirm("Sure you want to delete fork")){
-        setIsLoading(true)
-    try {
-        await deleteFork({uid:user?.uid,forkedCourseId:forkedCourseId})
-        toast.success("deleted couse successfully")
-    } catch (error) {
-        console.log(error)
-        toast.error("Error deleting Fork")
-    }finally{
-        setIsLoading(false)
+  const handleDeleteFork = async () => {
+    if (confirm("Sure you want to delete fork")) {
+      setIsLoading(true);
+      try {
+        await deleteFork({ uid: user?.uid, forkedCourseId: forkedCourseId });
+        toast.success("deleted couse successfully");
+      } catch (error) {
+        console.log(error);
+        toast.error("Error deleting Fork");
+      } finally {
+        setIsLoading(false);
+      }
     }
+  };
+  const handlePublishFork = async () => {
+    if (confirm("Sure you want to Publish fork")) {
+      setIsLoading(true);
+      try {
+        await publishForkedCourse({
+          uid: user?.uid,
+          forkedCourseId: forkedCourseId,
+          instructureUid :user?.uid,
+          instructureName :user?.displayName,
+          instructureEmail:user?.email,
+          instructurePhotoURL :user?.photoURL
+        });
+        toast.success("course published successfully");
+      } catch (error) {
+        console.log(error);
+        toast.error("Error publishing Fork");
+      } finally {
+        setIsLoading(false);
+      }
     }
-}
+  };
   return (
     <div className="my-3 border-b  relative bg-white text-gray-800 rounded-lg overflow-hidden shadow-xl max-w-4xl mx-auto border border-purple-100">
       <div className="relative z-20 top-0 left-0 flex bg-slate-100 p-2">
-        <Link href={`/course/${courseId}`}>
+        <Link href={`/fork-preview/${forkedCourseId}`}>
           <Button variant="ghost" size="sm">
             <EyeIcon className="w-4 h-4 mr-1" />
             View
@@ -102,6 +125,17 @@ const handleDeleteFork = async ()=>{
         >
           <Trash2 className="w-4 h-4 mr-1" />
           Delete
+        </Button>
+        <Button
+          isDisabled={isLoading}
+          isLoading={isLoading}
+          onPress={handlePublishFork}
+          variant="ghost"
+          size="sm"
+          className="text-green-500 hover:bg-green-100"
+        >
+          <BookOpenCheck className="w-4 h-4 mr-1" />
+          Publish
         </Button>
       </div>
       {/* Course Header with Banner Image */}

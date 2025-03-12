@@ -1,16 +1,17 @@
-
 import Link from "next/link";
 import CourseButton from "./CourseButton";
+import { GitBranch } from "lucide-react";
 
 const CourseCard = ({
   courseTitle,
   posterURL,
   courseId,
+  forkedFrom,
   coursePrice,
   category,
   instructureName,
   instructurePhotoURL,
-  instructureUid 
+  instructureUid,
 }) => {
   //   const = courseData;
 
@@ -28,7 +29,14 @@ const CourseCard = ({
           <h2 className="font-semibold text-gray-800 hover:text-purple-600 transition duration-200 line-clamp-1">
             {courseTitle}
           </h2>
+          
         </Link>
+        {forkedFrom && (
+            <div className="text-sm text-gray-600 flex items-center hover:text-purple-400">
+              <GitBranch size={12} />
+              <Link href={`/course/${forkedFrom}`}>{forkedFrom}</Link>
+            </div>
+          )}
         <div className="flex items-center justify-start mt-4 space-x-2 my-1">
           <img src={instructurePhotoURL} className="w-5 h-5 rounded-full" />
           <p className="text-sm text-gray-600">{instructureName}</p>

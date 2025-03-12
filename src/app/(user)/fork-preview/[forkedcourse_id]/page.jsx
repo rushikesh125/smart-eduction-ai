@@ -10,21 +10,22 @@ import {
   ChevronDown,
   BookOpen,
   BrainCircuit,
-  ConeIcon,
 } from "lucide-react";
 import MdChapterContent from "@/app/components/MdChapterContent";
 import { Button } from "@heroui/react";
 import PopupChatbot from "@/app/components/PopupChatbot";
-import { regenerateChapterContents } from "@/models/regenerateChaptercontent";
-import toast from "react-hot-toast";
+import { useForkedCourse } from "@/firebase/fork/read";
+import { useSelector } from "react-redux";
 
-const EnrolledCourse = () => {
-  const { course_id } = useParams();
-  const { data: course } = useCourse({ id: course_id });
+const ForkedCoursePage = () => {
+  const user = useSelector((state) => state.user);
+  const { forkedcourse_id } = useParams();
+  const { data: course } = useForkedCourse({
+    uid: user?.uid,
+    forkedCourseId: forkedcourse_id,
+  });
   const [activeChapter, setActiveChapter] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [regenrationPrompt, setRegenerationPrompt] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const contentRef = useRef(null);
 
   useEffect(() => {
@@ -50,45 +51,11 @@ const EnrolledCourse = () => {
     // For mobile, close drawer when selecting a chapter
     setIsDrawerOpen(false);
   };
-  const handleRegerateChapterContents = async () => {
-    setIsLoading(true);
-    try {
-      const { courseChapters, ...courseOverviewData } = course;
-      const courseChapterTitles = courseChapters?.map(
-        (chapter) => chapter?.title
-      );
-      // console.log({courseData:courseOverviewData,courseChaptersTitles:courseChapterTitles,currentChapter:activeChapter,prompt:regenrationPrompt})
-      const res = await regenerateChapterContents({
-        courseData: courseOverviewData,
-        courseChaptersTitles: courseChapterTitles,
-        currentChapter: activeChapter,
-        prompt: regenrationPrompt,
-      });
-      const regeneratedContents = JSON.parse(await res);
-      // console.log(regeneratedContents?.chapterContent)
-      if (!regeneratedContents?.chapterContent) {
-       throw new Error("Error Regenerating Course")
-      }
-      setActiveChapter((prevContent) => {
-        return {
-          prevContent,
-          chapterContent: regeneratedContents?.chapterContent,
-        };
-      });
-      toast.success("Courrse Regerated")
-      setRegenerationPrompt("")
-    } catch (error) {
-      console.log("Error Regenrating Course Contents");
-      toast.error("Failed to regerate",error?.message)
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <>
       <main className="min-h-screen bg-gray-50">
-        <PopupChatbot />
+        {/* <PopupChatbot/> */}
         {/* Header */}
         <div className="w-full p-4 bg-purple-600 text-white sticky top-0 z-40 flex justify-between items-center shadow-md">
           <h1 className="text-xl md:text-2xl font-semibold truncate">
@@ -165,33 +132,6 @@ const EnrolledCourse = () => {
                       <MdChapterContent
                         chapterContent={activeChapter.chapterContent}
                       />
-                      <hr className="my-4" />
-                      <div>
-                        <label className="block text-sm font-semibold text-purple-500 mb-2">
-                          🔮 Dynamiclly Adjust With Ai
-                        </label>
-                        <textarea
-                          name="aiPrompt"
-                          value={regenrationPrompt}
-                          onChange={(e) =>
-                            setRegenerationPrompt(e.target.value)
-                          }
-                          rows="3"
-                          placeholder="Describe What Adjustments you want in current Chapter Ex: want described in more detail / add more examples "
-                          className="w-full p-4 border border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-200 focus:border-purple-500 transition-all duration-200 bg-purple-50/50 hover:bg-purple-50"
-                        />
-                        <Button
-                          startContent={<BrainCircuit className="w-5 h-5" />}
-                          color="secondary"
-                          isLoading={isLoading}
-                          isDisabled={isLoading}
-                          variant="ghost"
-                          onPress={handleRegerateChapterContents}
-                          className="mt-3 bg-purple-100 text-purple-500 hover:bg-purple-200 font-semibold py-2 px-6 rounded-full shadow-md transition-all duration-300 transform hover:scale-105"
-                        >
-                          Renerate ✨
-                        </Button>
-                      </div>
                     </>
                   ) : (
                     <div className="p-4 bg-gray-100 rounded-lg text-gray-600">
@@ -212,7 +152,7 @@ const EnrolledCourse = () => {
   );
 };
 
-export default EnrolledCourse;
+export default ForkedCoursePage;
 
 const ChaptersList = ({
   chapters,
