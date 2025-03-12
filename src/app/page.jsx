@@ -1,9 +1,9 @@
-import Image from "next/image";
+"use client"
 import Header from "./components/Header";
 import { Search } from "lucide-react";
 import CoursesGridView from "./components/CoursesGridView";
 
-export default async function Home() {
+export default  function Home() {
   return (
     <>
       <Header />

@@ -1,16 +1,27 @@
+"use client"
 import { getAllCourses } from "@/firebase/courses/read.server";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CourseCard from "./ui/CourseCard";
+import { useAllCourses } from "@/firebase/courses/read";
+import Loading from "../loading";
 
-const CoursesGridView = async () => {
-  const courses = await getAllCourses();
-
+const CoursesGridView = () => {
+  const {data:courses,error,isLoading} = useAllCourses();
+  if(error){
+    return <div className="text-red-400 w-full text-center">Error Fetching Courses {error?.message}</div>
+  }
+  if(isLoading){
+    return <Loading/>
+  }
   const formattedCourses = courses?.map((course) => ({
     ...course,
     createdAt: course.createdAt?.seconds
       ? new Date(course.createdAt.seconds * 1000).toISOString()
       : null, // Convert Firestore Timestamp to a string
   }));
+  if(courses){
+    console.log(courses)
+  }
 
   return (
     <>

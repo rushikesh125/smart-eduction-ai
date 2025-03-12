@@ -1,4 +1,4 @@
-import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
+import { collection, doc, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import useSWRSubscription from "swr/subscription";
 import { db } from "../config";
 
@@ -43,3 +43,26 @@ export function useCourses({ uid }) {
     );
     return { data, error, isLoading: data === undefined };
   }
+
+
+
+export function useAllCourses() {
+  const { data, error } = useSWRSubscription(["courses"], ([path], { next }) => {
+    const collectionRef = query(collection(db, "courses"), orderBy("createdAt", "desc"));
+    
+    const unsub = onSnapshot(
+      collectionRef,
+      (snapshot) => {
+        next(
+          null,
+          snapshot.empty ? null : snapshot.docs.map((snap) => snap.data())
+        );
+      },
+      (error) => next(error, null)
+    );
+
+    return () => unsub();
+  });
+
+  return { data, error, isLoading: data === undefined };
+}
