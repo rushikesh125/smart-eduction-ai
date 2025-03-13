@@ -1,6 +1,7 @@
 import Link from "next/link";
 import CourseButton from "./CourseButton";
 import { GitBranch } from "lucide-react";
+import { Avatar } from "@heroui/react";
 
 const CourseCard = ({
   courseTitle,
@@ -38,7 +39,7 @@ const CourseCard = ({
             </div>
           )}
         <div className="flex items-center justify-start mt-4 space-x-2 my-1">
-          <img src={instructurePhotoURL} className="w-5 h-5 rounded-full" />
+          <Avatar showFallback src={instructurePhotoURL} className="w-5 h-5 rounded-full" />
           <p className="text-sm text-gray-600">{instructureName}</p>
         </div>
         <div className="flex justify-between items-center">

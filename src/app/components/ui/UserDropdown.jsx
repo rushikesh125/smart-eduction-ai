@@ -8,7 +8,8 @@ import {
   User,
 } from "@heroui/react";
 import { signOut } from "firebase/auth";
-import { Clapperboard, LogOut, TvMinimalPlay } from "lucide-react";
+import { Clapperboard, GitBranch, LogOut, TvMinimalPlay } from "lucide-react";
+import Link from "next/link";
 import toast from "react-hot-toast";
 
 export default function UserDropdown({ user }) {
@@ -24,6 +25,7 @@ export default function UserDropdown({ user }) {
       <Dropdown placement="bottom-end">
         <DropdownTrigger>
           <Avatar
+          showFallback
             isBordered
             color="secondary"
             as="button"
@@ -38,16 +40,22 @@ export default function UserDropdown({ user }) {
           </DropdownItem>
 
           <DropdownItem key="Subscription">
-            <div className="flex  items-center gap-2 hover:text-purple-500">
+            <Link href={`/enrolled-courses`} className="flex  items-center gap-2 hover:text-purple-500">
               <TvMinimalPlay size={15}/>
               Enrolled Courses
-            </div>
+            </Link>
           </DropdownItem>
           <DropdownItem key="Courses">
-            <div className="flex  items-center gap-2 hover:text-purple-500">
+            <Link href={`/my-courses`} className="flex  items-center gap-2 hover:text-purple-500">
               <Clapperboard size={15}/>
               My Courses
-            </div>
+            </Link>
+          </DropdownItem>
+          <DropdownItem key="my-forks">
+            <Link href={`/my-forks`} className="flex  items-center gap-2 hover:text-purple-500">
+              <GitBranch size={15}/>
+              Forks
+            </Link>
           </DropdownItem>
           <DropdownItem key="logout" color="danger" onPress={handleSignLogOut}>
             <div className="flex  items-center gap-2 ">

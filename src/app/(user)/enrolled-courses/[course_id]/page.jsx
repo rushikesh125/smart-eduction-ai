@@ -17,6 +17,7 @@ import { Button } from "@heroui/react";
 import PopupChatbot from "@/app/components/PopupChatbot";
 import { regenerateChapterContents } from "@/models/regenerateChaptercontent";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 const EnrolledCourse = () => {
   const { course_id } = useParams();
@@ -91,9 +92,9 @@ const EnrolledCourse = () => {
         <PopupChatbot />
         {/* Header */}
         <div className="w-full p-4 bg-purple-600 text-white sticky top-0 z-40 flex justify-between items-center shadow-md">
-          <h1 className="text-xl md:text-2xl font-semibold truncate">
+          <Link href={`/course/${course_id}`} className="text-xl md:text-2xl font-semibold truncate">
             {course?.courseTitle}
-          </h1>
+          </Link>
           <button
             onClick={toggleDrawer}
             className="p-2 rounded-full hover:bg-purple-700 transition-colors md:hidden"

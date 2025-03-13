@@ -1,6 +1,7 @@
 import { deleteFork } from "@/firebase/fork/delete";
 import { publishForkedCourse } from "@/firebase/fork/publish";
-import { Button } from "@heroui/react";
+import { createMergeRequest } from "@/firebase/merge/write";
+import { Avatar, Button } from "@heroui/react";
 import {
   Award,
   BookOpen,
@@ -12,6 +13,7 @@ import {
   Eye,
   EyeIcon,
   FileText,
+  GitPullRequestArrow,
   Globe,
   Mail,
   Trash2,
@@ -82,10 +84,10 @@ const FrokedCourse = ({ courseData }) => {
         await publishForkedCourse({
           uid: user?.uid,
           forkedCourseId: forkedCourseId,
-          instructureUid :user?.uid,
-          instructureName :user?.displayName,
-          instructureEmail:user?.email,
-          instructurePhotoURL :user?.photoURL
+          instructureUid: user?.uid,
+          instructureName: user?.displayName,
+          instructureEmail: user?.email,
+          instructurePhotoURL: user?.photoURL,
         });
         toast.success("course published successfully");
       } catch (error) {
@@ -96,9 +98,44 @@ const FrokedCourse = ({ courseData }) => {
       }
     }
   };
+  const handleCreateMerge = async () => {
+    if (confirm("Sure you want to Create Merge Request")) {
+      setIsLoading(true);
+      try {
+        const dataToMerge = {
+          forkedCourseId: forkedCourseId,
+          requestedBy: {
+            email: user?.email,
+            username: user?.displayName,
+            photoURL: user?.photoURL,
+          },
+          status: "pending",
+          category: category,
+          courseChapters: courseChapters,
+          coursePrice: coursePrice,
+          courseTitle: courseTitle,
+          description: description,
+          language: language,
+          level: level,
+          posterURL: posterURL,
+          shortDescription: shortDescription,
+        };
+        await createMergeRequest({
+          courseId: courseId,
+          forkedCourseData: dataToMerge,
+        });
+        toast.success("Merge Request Sent");
+      } catch (error) {
+        console.log(error);
+        toast.error("Error creating Merge Request");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
   return (
     <div className="my-3 border-b  relative bg-white text-gray-800 rounded-lg overflow-hidden shadow-xl max-w-4xl mx-auto border border-purple-100">
-      <div className="relative z-20 top-0 left-0 flex bg-slate-100 p-2">
+      <div className="relative z-20 top-0 left-0 flex flex-wrap gap-2 bg-slate-100 p-2">
         <Link href={`/fork-preview/${forkedCourseId}`}>
           <Button variant="ghost" size="sm">
             <EyeIcon className="w-4 h-4 mr-1" />
@@ -136,6 +173,17 @@ const FrokedCourse = ({ courseData }) => {
         >
           <BookOpenCheck className="w-4 h-4 mr-1" />
           Publish
+        </Button>
+        <Button
+          onPress={handleCreateMerge}
+          isDisabled={isLoading}
+          isLoading={isLoading}
+          // variant="ghost"
+          size="sm"
+          className="text-green-500 bg-black"
+        >
+          <GitPullRequestArrow className="w-4 h-4 mr-1" />
+          Create Merge Request
         </Button>
       </div>
       {/* Course Header with Banner Image */}
@@ -214,7 +262,8 @@ const FrokedCourse = ({ courseData }) => {
               <div className="flex items-center mb-3">
                 <div className="mr-3">
                   {instructurePhotoURL ? (
-                    <img
+                    <Avatar
+                      showFallback
                       src={instructurePhotoURL}
                       alt={instructureName}
                       className="w-10 h-10 rounded-full border-2 border-purple-400"
@@ -252,10 +301,10 @@ const FrokedCourse = ({ courseData }) => {
                   <Copy className="w-4 h-4 mr-1 text-purple-500" /> Fork
                   Information
                 </h3>
-                <p className="text-sm mb-1">
-                  <span className="text-gray-500">Forked From:</span>{" "}
+                <Link href={`/course/${forkedFrom}`} className="text-sm mb-1 text-purple-600 underline">
+                  <span className="">Forked From:</span>{" "}
                   {forkedFrom}
-                </p>
+                </Link>
                 <p className="text-sm">
                   <span className="text-gray-500">Original ID:</span>{" "}
                   {forkedCourseId}
