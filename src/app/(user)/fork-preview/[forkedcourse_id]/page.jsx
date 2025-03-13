@@ -154,7 +154,7 @@ const ForkedCoursePage = () => {
 
 export default ForkedCoursePage;
 
-const ChaptersList = ({
+export const ChaptersList = ({
   chapters,
   activeChapter,
   setActiveChapter,

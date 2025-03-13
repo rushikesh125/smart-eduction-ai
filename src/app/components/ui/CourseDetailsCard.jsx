@@ -22,11 +22,12 @@ import CourseReviews from "./Review";
 import { Avatar, Button } from "@heroui/react";
 import CourseButton from "./CourseButton";
 import { useSelector } from "react-redux";
+import MergeRequestCard from "./MergeRequestCard";
+import MergeRequest from "../MergeRequest";
 
 const CourseDetailsCard = ({ courseData }) => {
   const { course_id } = useParams();
-  const user = useSelector(state=>state.user);
-  
+  const user = useSelector((state) => state.user);
 
   return (
     <>
@@ -293,11 +294,13 @@ const CourseDetailsCard = ({ courseData }) => {
           )}
         </div>
       </div>
-     { courseData?.instructureUid == user?.uid ? ( <div className="p-3 md:p-6 bg-white max-w-7xl mx-auto shadow-xl rounded-3xl overflow-hidden border border-purple-100 my-4">
-        <h1>Merge Requests</h1>
-      </div>):<></>
-
-     }
+      {courseData?.instructureUid == user?.uid ? (
+        <div className="p-3 md:p-6 bg-white max-w-7xl mx-auto shadow-xl rounded-3xl overflow-hidden border border-purple-100 my-4">
+          <MergeRequest courseId={course_id}/>
+        </div>
+      ) : (
+        <></>
+      )}
     </>
   );
 };
