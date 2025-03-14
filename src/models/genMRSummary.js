@@ -5,7 +5,7 @@ const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
 
 // Configure the model
 const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-pro",
+  model: "gemini-2.0-flash",
   systemInstruction:
     "You are Horizon AI. Your task is to analyze two course versions: the first course (previous version) and the second course (updated version). You will compare the updated version with the previous version and identify the changes made. Your analysis should be similar to GitHub’s Pull Request review, clearly highlighting what content has been added, modified, or removed. Generate the output in an attractive and understandable Markdown format, ensuring it is precise, structured, and easy to read ",
 });

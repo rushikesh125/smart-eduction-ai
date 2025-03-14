@@ -17,7 +17,7 @@ const courseContentSchema = {
 
 // Configure the model
 const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-pro",
+  model: "gemini-2.0-flash",
   generationConfig: {
     responseMimeType: "application/json",
     responseSchema: courseContentSchema,
