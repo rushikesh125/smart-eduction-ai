@@ -81,7 +81,7 @@
 //         toast.error("missing course data or merge course data")
 //         return
 //       }
-//         const res = await mergeSummaryGenAi(course,data) 
+//         const res = await mergeSummaryGenAi(course,data)
 //         setSummary(res)
 //     } catch (error) {
 //         console.log(error)
@@ -222,11 +222,11 @@
 //           {status === "pending" && (
 //             <>
 //               <Button startContent={<X size={16} className="mr-1" />} className="bg-transparent flex items-center px-4 py-2 rounded-lg border border-red-300 text-red-600 hover:bg-red-50 transition-colors">
-                
+
 //                 <span>Reject</span>
 //               </Button>
 //               <Button startContent={ <Check size={16} className="mr-1" />} className="flex items-center px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700 transition-colors shadow-sm">
-               
+
 //                 <span>Approve</span>
 //               </Button>
 //             </>
@@ -274,7 +274,6 @@
 
 // export default MergeRequestCard;
 
-
 import React, { useState } from "react";
 import {
   BookOpen,
@@ -292,13 +291,14 @@ import {
   BrainCircuit,
 } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@heroui/react";
-import MDEditor from '@uiw/react-md-editor';
-import rehypeSanitize from 'rehype-sanitize';
-import rehypeHighlight from 'rehype-highlight';
+import { Avatar, Button } from "@heroui/react";
+import MDEditor from "@uiw/react-md-editor";
+import rehypeSanitize from "rehype-sanitize";
+import rehypeHighlight from "rehype-highlight";
 import toast from "react-hot-toast";
 import { mergeSummaryGenAi } from "@/models/genMRSummary";
 import { useCourse } from "@/firebase/courses/read";
+import { mergeCourse, rejectMergeRequest } from "@/firebase/merge/merge";
 
 const MergeRequestCard = ({ data, courseId }) => {
   const {
@@ -315,7 +315,7 @@ const MergeRequestCard = ({ data, courseId }) => {
   } = data;
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const {data:course,error} = useCourse({id:courseId})
+  const { data: course, error } = useCourse({ id: courseId });
 
   const statusConfig = {
     pending: {
@@ -370,13 +370,56 @@ const MergeRequestCard = ({ data, courseId }) => {
     }
   };
 
+  const handleAcceptMergeRequest = async () => {
+    if (confirm("Are You Sure You Want to Merge Course")) {
+      try {
+        setIsLoading(true);
+        const res = await mergeCourse({
+          courseId: courseId,
+          mergeRequestId: mergeRequestId,
+        });
+        if (await res) {
+          toast.success("Course Merged succesfully");
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error("Error Merging Course");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleRejectMergeRequest = async () => {
+    if (confirm("Are You Sure You Want to Reject Request")) {
+      try {
+        setIsLoading(true);
+        const res = await rejectMergeRequest({
+          courseId: courseId,
+          mergeRequestId: mergeRequestId,
+        });
+        if (await res) {
+          toast.success("Request Rejected");
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error("Error Rejecting Request");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
   return (
     <div className="w-full max-w-4xl mx-auto bg-white rounded-xl shadow-md border overflow-hidden transition-all hover:shadow-lg duration-300">
       {/* Status Banner */}
-      <div className={`px-2 md:px-4 py-3 sm:px-6 ${currentStatus.bgColor} ${currentStatus.textColor} flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-opacity-50 ${currentStatus.borderColor}`}>
+      <div
+        className={`px-2 md:px-4 py-3 sm:px-6 ${currentStatus.bgColor} ${currentStatus.textColor} flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-opacity-50 ${currentStatus.borderColor}`}
+      >
         <div className="flex items-center mb-2 sm:mb-0">
           {currentStatus.icon}
-          <span className="font-medium capitalize text-sm sm:text-base">{status} Merge Request</span>
+          <span className="font-medium capitalize text-sm sm:text-base">
+            {status} Merge Request
+          </span>
         </div>
         <span className="text-xs sm:text-sm bg-white bg-opacity-40 py-1 px-3 rounded-full">
           {formatDate(new Date())}
@@ -389,7 +432,9 @@ const MergeRequestCard = ({ data, courseId }) => {
           <div className="p-2 bg-purple-100 rounded-lg mb-3 sm:mb-0 sm:mr-4">
             <BookOpen className="text-purple-500" size={20} />
           </div>
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 text-center sm:text-left">{courseTitle}</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 text-center sm:text-left">
+            {courseTitle}
+          </h2>
         </div>
       </div>
 
@@ -397,7 +442,8 @@ const MergeRequestCard = ({ data, courseId }) => {
       <div className=" md:px-4 py-4 sm:px-6 bg-gray-50 flex flex-col sm:flex-row items-center gap-4">
         <div className="flex-shrink-0">
           {requestedBy?.photoURL ? (
-            <img
+            <Avatar
+              showFallback
               src={requestedBy.photoURL}
               alt={requestedBy.username}
               className="w-12 h-12 rounded-full border-2 border-white shadow-sm"
@@ -414,7 +460,9 @@ const MergeRequestCard = ({ data, courseId }) => {
           <p className="font-medium text-gray-800 text-sm sm:text-base">
             {requestedBy?.username || "Unknown User"}
           </p>
-          <p className="text-xs sm:text-sm text-gray-500">{requestedBy?.email}</p>
+          <p className="text-xs sm:text-sm text-gray-500">
+            {requestedBy?.email}
+          </p>
         </div>
         <div className="sm:ml-auto flex items-center bg-white py-1 px-3 rounded-full border border-gray-200">
           <Clock className="text-purple-400 mr-1" size={14} />
@@ -432,18 +480,34 @@ const MergeRequestCard = ({ data, courseId }) => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {[
-            { icon: Tag, label: "Category", value: category || "Uncategorized" },
-            { icon: DollarSign, label: "Price", value: typeof coursePrice === "number" ? `$${coursePrice.toFixed(2)}` : coursePrice || "Free" },
+            {
+              icon: Tag,
+              label: "Category",
+              value: category || "Uncategorized",
+            },
+            {
+              icon: DollarSign,
+              label: "Price",
+              value:
+                typeof coursePrice === "number"
+                  ? `$${coursePrice.toFixed(2)}`
+                  : coursePrice || "Free",
+            },
             { icon: Globe, label: "Language", value: language || "English" },
             { icon: BarChart, label: "Level", value: level || "Beginner" },
           ].map((item, index) => (
-            <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
+            <div
+              key={index}
+              className="flex items-center p-3 bg-gray-50 rounded-lg"
+            >
               <div className="p-2 bg-purple-100 rounded-md mr-3 flex-shrink-0">
                 <item.icon className="text-purple-500" size={16} />
               </div>
               <div className="min-w-0">
                 <div className="text-xs text-gray-500 mb-1">{item.label}</div>
-                <div className="text-gray-800 font-medium text-sm truncate">{item.value}</div>
+                <div className="text-gray-800 font-medium text-sm truncate">
+                  {item.value}
+                </div>
               </div>
             </div>
           ))}
@@ -464,12 +528,18 @@ const MergeRequestCard = ({ data, courseId }) => {
           {status === "pending" && (
             <>
               <Button
+                isLoading={isLoading}
+                isDisabled={isLoading}
+                onPress={handleRejectMergeRequest}
                 startContent={<X size={16} className="mr-1" />}
                 className="w-full sm:w-auto bg-transparent flex items-center justify-center px-4 py-2 rounded-lg border border-red-300 text-red-600 hover:bg-red-50 transition-colors"
               >
                 <span className="text-sm">Reject</span>
               </Button>
               <Button
+                isLoading={isLoading}
+                isDisabled={isLoading}
+                onPress={handleAcceptMergeRequest}
                 startContent={<Check size={16} className="mr-1" />}
                 className="w-full sm:w-auto flex items-center justify-center px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700 transition-colors shadow-sm"
               >
