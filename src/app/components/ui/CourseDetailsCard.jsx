@@ -24,6 +24,7 @@ import CourseButton from "./CourseButton";
 import { useSelector } from "react-redux";
 import MergeRequestCard from "./MergeRequestCard";
 import MergeRequest from "../MergeRequest";
+import Contributers from "./Contributers";
 
 const CourseDetailsCard = ({ courseData }) => {
   const { course_id } = useParams();
@@ -225,7 +226,12 @@ const CourseDetailsCard = ({ courseData }) => {
               </Button>
             </div>
           </div>
-
+          {courseData?.contributers?.length && (
+            <div className="w-full p-2 md:p-3 bg-slate-100 rounded-xl">
+              <h3 className="text-sm p-1 text-purple-500">Contributers</h3>
+              <Contributers contributers={courseData.contributers} />
+            </div>
+          )}
           <hr className="h-px my-6 bg-gradient-to-r from-transparent via-purple-200 to-transparent border-0" />
 
           {/* Chapters Section */}
@@ -296,7 +302,7 @@ const CourseDetailsCard = ({ courseData }) => {
       </div>
       {courseData?.instructureUid == user?.uid ? (
         <div className=" md:p-6 bg-white max-w-7xl mx-auto shadow-xl rounded-3xl overflow-hidden border border-purple-100 my-4">
-          <MergeRequest courseId={course_id}/>
+          <MergeRequest courseId={course_id} />
         </div>
       ) : (
         <></>
