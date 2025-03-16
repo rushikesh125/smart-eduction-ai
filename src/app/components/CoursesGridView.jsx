@@ -1,16 +1,44 @@
+"use client";
 import { getAllCourses } from "@/firebase/courses/read.server";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CourseCard from "./ui/CourseCard";
 
-const CoursesGridView = async () => {
-  const courses = await getAllCourses();
+const CoursesGridView = ({ search = "" }) => {
+  // const courses = await getAllCourses();
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const formattedCourses = courses?.map((course) => ({
-    ...course,
-    createdAt: course.createdAt?.seconds
-      ? new Date(course.createdAt.seconds * 1000).toISOString()
-      : null, // Convert Firestore Timestamp to a string
-  }));
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const coursesData = await getAllCourses();
+        const formattedCourses = coursesData?.map((course) => ({
+          ...course,
+          createdAt: course.createdAt?.seconds
+            ? new Date(course.createdAt.seconds * 1000).toISOString()
+            : null,
+        }));
+        setCourses(formattedCourses);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []); // Fetch only once on mount
+
+  // const formattedCourses = courses?.map((course) => ({
+  //   ...course,
+  //   createdAt: course.createdAt?.seconds
+  //     ? new Date(course.createdAt.seconds * 1000).toISOString()
+  //     : null, // Convert Firestore Timestamp to a string
+  // }));
+
+  const filteredCourses = courses.filter((course) =>
+    course.courseTitle.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <>
@@ -19,13 +47,15 @@ const CoursesGridView = async () => {
           Explore All Courses
         </h1>
         <div className="p-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3 lg:gap-4">
-          {formattedCourses?.length > 0 ? (
-            formattedCourses?.map((course) => (
+          {filteredCourses?.length > 0 ? (
+            filteredCourses?.map((course) => (
               <CourseCard {...course} key={course.courseId} />
             ))
           ) : (
-            <div className="text-red-400 font-xl font-semibold text-center my-2 w-full">
-              There Must be Error OR No Course available
+            <div className="flex justify-center items-center w-full h-40">
+              <p className="text-red-400 text-xl font-semibold text-center">
+                There Must be an Error OR No Course Available
+              </p>
             </div>
           )}
         </div>
